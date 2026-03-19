@@ -1,0 +1,42 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./app.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - DEV_MODE=${DEV_MODE:-true}
+      - UPLOAD_DIR=/app/uploads
+      - CORS_ORIGINS=["http://localhost:9200"]
+    volumes:
+      - uploads:/app/uploads
+      - db-data:/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "9200:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Uncomment for production PostgreSQL:
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: app
+  #     POSTGRES_USER: app
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  uploads:
+  db-data:
+  # postgres-data:
