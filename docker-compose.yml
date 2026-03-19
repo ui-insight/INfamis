@@ -2,14 +2,14 @@ services:
   backend:
     build: ./backend
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./app.db
+      - DATABASE_URL=sqlite+aiosqlite:///./data/app.db
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
       - DEV_MODE=${DEV_MODE:-true}
       - UPLOAD_DIR=/app/uploads
       - CORS_ORIGINS=["http://localhost:9200"]
     volumes:
       - uploads:/app/uploads
-      - db-data:/app
+      - db-data:/app/data
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
       interval: 30s
